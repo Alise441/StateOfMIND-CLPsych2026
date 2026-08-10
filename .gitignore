@@ -1,0 +1,23 @@
+# CLPsych 2026 dataset and derivatives — never commit these (Data Access Agreement)
+train_tasks12/
+test_tasks12nolabels/
+augmented_data/
+outputs/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/

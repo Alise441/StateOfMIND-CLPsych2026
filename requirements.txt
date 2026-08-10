@@ -1,0 +1,10 @@
+vllm
+sentence-transformers
+torch
+numpy
+pandas
+scipy
+scikit-learn
+tqdm
+pytest
+jupyter
