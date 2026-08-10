@@ -48,15 +48,16 @@ compare_submissions.py        CLI: diff two submissions' scoring results (TP/FP/
 official_eval/                 Shared-task organizers' evaluation and validation scripts
 tests/test_all.py              Unit tests for taxonomy, prompting, parsing, evaluation
 
-colab_train_set_inference.ipynb                 Submission 1 (solo Qwen): train-set inference + eval
-colab_test_set_inference.ipynb                  Submission 1: test-set inference + submission file
-colab_ensemble_qwen_mistral.ipynb               Submission 2 (ensemble, union merge)
-colab_ensemble_qwen_elements_avg_presence.ipynb Submission 3 (ensemble, Qwen-elements merge)
-colab_ablation_study.ipynb                      Ablation 1 (prompting) and 3 (ensemble merge)
-colab_ablation2_retrieval.ipynb                 Ablation 2 (retrieval strategy)
+notebooks/
+  01_submission1_train.ipynb           Submission 1 (solo Qwen): train-set inference + eval
+  02_submission1_test.ipynb            Submission 1: test-set inference + submission file
+  03_submission2_ensemble_union.ipynb  Submission 2 (ensemble, union merge)
+  04_submission3_ensemble_qwen_elements.ipynb  Submission 3 (ensemble, Qwen-elements merge)
+  05_ablation_prompting_and_merge.ipynb        Ablations 1 (prompting) and 3 (ensemble merge)
+  06_ablation_retrieval.ipynb                  Ablation 2 (retrieval strategy)
 ```
 
-Despite the `colab_` filename prefix (kept so each notebook still maps onto the submission/ablation it produced), these run in any local Jupyter environment — see Setup below.
+Each notebook's first cell moves the working directory to the repo root, so open them from wherever Jupyter is running — no manual `cd` needed.
 
 ## Setup
 
@@ -75,7 +76,7 @@ train_tasks12/*.json            30 training timelines
 test_tasks12nolabels/*.json     10 test timelines (no labels)
 ```
 
-`colab_train_set_inference.ipynb` and `colab_test_set_inference.ipynb` (Submission 1 only) additionally expect an `augmented_data/*.json` directory of synthetic posts for rare Affect subelements, also not included. Our ablations found this augmentation helps the solo-model system but hurts the ensemble, so **Submissions 2 and 3 (the best-performing systems) don't use it at all**. To run the Submission 1 notebooks without it, drop the `aug_posts = load_all_timelines('augmented_data')` line and set `rag_index_aug = rag_index_real`.
+`01_submission1_train.ipynb` and `02_submission1_test.ipynb` (Submission 1 only) additionally expect an `augmented_data/*.json` directory of synthetic posts for rare Affect subelements, also not included. Our ablations found this augmentation helps the solo-model system but hurts the ensemble, so **Submissions 2 and 3 (the best-performing systems) don't use it at all**. To run the Submission 1 notebooks without it, drop the `aug_posts = load_all_timelines('augmented_data')` line and set `rag_index_aug = rag_index_real`.
 
 ## Results
 
