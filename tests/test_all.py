@@ -13,6 +13,7 @@ from prompt_builder_rag import (
     _truncate, _format_gold_as_lines, _extract_evidence, MAX_CHARS,
 )
 from evaluate import _compute_subelement_macro_f1, _gold_from_post
+from merge import build_within_model, merge_ensemble_s3, merge_ensemble_union
 
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
@@ -232,3 +233,93 @@ class TestRAGIndex:
             from rag_index import _subelement_set
             subs |= _subelement_set(s["gold"])
         assert len(subs) >= 3
+
+
+# ── merge ────────────────────────────────────────────────────────────────────
+
+class TestBuildWithinModel:
+    def test_unified_only(self):
+        unified = _make_gold(adaptive_elems={"D": 1}, maladaptive_elems={"A": 4}, adaptive_presence=3, maladaptive_presence=4)
+        merged = build_within_model(unified)
+        assert merged["adaptive"]["elements"] == {"D": 1}
+        assert merged["maladaptive"]["elements"] == {"A": 4}
+        assert merged["adaptive"]["presence"] == 3
+
+    def test_adaptive_call_overrides_adaptive_elements(self):
+        unified = _make_gold(adaptive_elems={"D": 1}, adaptive_presence=3)
+        adaptive = _make_gold(adaptive_elems={"B-O": 1})
+        merged = build_within_model(unified, adaptive=adaptive)
+        assert merged["adaptive"]["elements"] == {"B-O": 1}
+        assert merged["adaptive"]["presence"] == 3  # presence still comes from unified
+
+    def test_per_a_overrides_affect_only(self):
+        unified = _make_gold(adaptive_elems={"A": 5, "D": 1})
+        per_a = _make_gold(adaptive_elems={"A": 7})
+        merged = build_within_model(unified, per_a=per_a)
+        assert merged["adaptive"]["elements"] == {"A": 7, "D": 1}
+
+    def test_per_a_removes_affect_when_absent(self):
+        unified = _make_gold(adaptive_elems={"A": 5, "D": 1})
+        per_a = _make_gold()  # no A found
+        merged = build_within_model(unified, per_a=per_a)
+        assert merged["adaptive"]["elements"] == {"D": 1}
+
+    def test_no_elements_resets_presence_to_one(self):
+        unified = _make_gold(adaptive_presence=4)
+        merged = build_within_model(unified)
+        assert merged["adaptive"]["elements"] == {}
+        assert merged["adaptive"]["presence"] == 1
+
+
+class TestMergeEnsembleS3:
+    def test_elements_from_qwen_only(self):
+        qpred = _make_gold(adaptive_elems={"D": 1}, adaptive_presence=3)
+        mpred = _make_gold(adaptive_elems={"B-O": 1}, adaptive_presence=3)
+        merged = merge_ensemble_s3(qpred, mpred)
+        assert merged["adaptive"]["elements"] == {"D": 1}  # Mistral's B-O is ignored
+
+    def test_presence_tie_break_one_two(self):
+        qpred = _make_gold(adaptive_elems={"D": 1}, adaptive_presence=1)
+        mpred = _make_gold(adaptive_elems={"D": 1}, adaptive_presence=2)
+        merged = merge_ensemble_s3(qpred, mpred)
+        assert merged["adaptive"]["presence"] == 2
+
+    def test_presence_averages_and_rounds(self):
+        qpred = _make_gold(adaptive_elems={"D": 1}, adaptive_presence=3)
+        mpred = _make_gold(adaptive_elems={"D": 1}, adaptive_presence=4)
+        merged = merge_ensemble_s3(qpred, mpred)
+        assert merged["adaptive"]["presence"] == round((3 + 4) / 2)
+
+    def test_no_qwen_elements_resets_presence(self):
+        qpred = _make_gold(adaptive_presence=5)  # no elements
+        mpred = _make_gold(adaptive_elems={"D": 1}, adaptive_presence=5)
+        merged = merge_ensemble_s3(qpred, mpred)
+        assert merged["adaptive"]["elements"] == {}
+        assert merged["adaptive"]["presence"] == 1
+
+
+class TestMergeEnsembleUnion:
+    def test_elements_are_unioned(self):
+        qpred = _make_gold(adaptive_elems={"D": 1})
+        mpred = _make_gold(adaptive_elems={"B-O": 1})
+        merged = merge_ensemble_union(qpred, mpred)
+        assert merged["adaptive"]["elements"] == {"D": 1, "B-O": 1}
+
+    def test_mistral_wins_on_disagreement(self):
+        qpred = _make_gold(adaptive_elems={"D": 1})
+        mpred = _make_gold(adaptive_elems={"D": 3})
+        merged = merge_ensemble_union(qpred, mpred)
+        assert merged["adaptive"]["elements"] == {"D": 3}
+
+    def test_falls_back_to_qwen_when_mistral_missing(self):
+        qpred = _make_gold(adaptive_elems={"D": 1})
+        mpred = _make_gold()  # Mistral found nothing for D
+        merged = merge_ensemble_union(qpred, mpred)
+        assert merged["adaptive"]["elements"] == {"D": 1}
+
+    def test_no_elements_resets_presence(self):
+        qpred = _make_gold(adaptive_presence=5)
+        mpred = _make_gold(adaptive_presence=5)
+        merged = merge_ensemble_union(qpred, mpred)
+        assert merged["adaptive"]["elements"] == {}
+        assert merged["adaptive"]["presence"] == 1

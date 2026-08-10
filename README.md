@@ -44,9 +44,11 @@ evaluate.py                   Task 1.1 (subelement Macro F1) and Task 1.2 (RMSE)
 submission_formatter.py       Predictions → task1_pred.json (Codabench submission format)
 distribution_analysis.py      CLI: compare train-gold vs. predicted label distributions
 compare_submissions.py        CLI: diff two submissions' scoring results (TP/FP/FN)
+merge.py                      Within-model and cross-model merge rules (used by every notebook below)
+gpu_utils.py                  free_gpu(): release VRAM between model loads
 
 official_eval/                 Shared-task organizers' evaluation and validation scripts
-tests/test_all.py              Unit tests for taxonomy, prompting, parsing, evaluation
+tests/test_all.py              Unit tests for taxonomy, prompting, parsing, evaluation, merge rules
 
 notebooks/
   01_submission1_train.ipynb           Submission 1 (solo Qwen): train-set inference + eval
