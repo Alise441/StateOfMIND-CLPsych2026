@@ -4,6 +4,9 @@ test_tasks12nolabels/
 augmented_data/
 outputs/
 
+# Organizers' evaluation scripts — no redistribution license found, obtain from CLPsych 2026 organizers
+official_eval/
+
 # Python
 __pycache__/
 *.pyc

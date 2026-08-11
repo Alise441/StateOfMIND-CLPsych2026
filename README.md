@@ -47,7 +47,6 @@ compare_submissions.py        CLI: diff two submissions' scoring results (TP/FP/
 merge.py                      Within-model and cross-model merge rules (used by every notebook below)
 gpu_utils.py                  free_gpu(): release VRAM between model loads
 
-official_eval/                 Shared-task organizers' evaluation and validation scripts
 tests/test_all.py              Unit tests for taxonomy, prompting, parsing, evaluation, merge rules
 
 notebooks/
@@ -79,6 +78,10 @@ test_tasks12nolabels/*.json     10 test timelines (no labels)
 ```
 
 `01_submission1_train.ipynb` and `02_submission1_test.ipynb` (Submission 1 only) additionally expect an `augmented_data/*.json` directory of synthetic posts for rare Affect subelements, also not included. Our ablations found this augmentation helps the solo-model system but hurts the ensemble, so **Submissions 2 and 3 (the best-performing systems) don't use it at all**. To run the Submission 1 notebooks without it, drop the `aug_posts = load_all_timelines('augmented_data')` line and set `rag_index_aug = rag_index_real`.
+
+### Official evaluation scripts
+
+The notebooks optionally call the organizers' `official_eval/validate_submission.py` (checks a `task1_pred.json` matches the required submission schema) and, in `01_submission1_train.ipynb`, `official_eval/evaluate_task1.py` (their reference scorer, used there as a cross-check against this repo's own `evaluate.py`). We don't have a redistribution license for these, so they're not included — get them from the CLPsych 2026 organizers and place them in an `official_eval/` folder at the repo root. Without it, these steps print a clear message and skip themselves; predictions, merging, and this repo's own Task 1.1/1.2 metrics (`evaluate.py`) all still run.
 
 ## Results
 
