@@ -1,6 +1,6 @@
 # StateOfMIND: Self-State Identification with Retrieved In-Context Examples and Open-Weight LLMs
 
-Code for the **StateOfMIND** team's submission to Task 1 of the [CLPsych 2026 shared task](https://clpsych.org/), which asks systems to identify adaptive and maladaptive psychological self-states in social media posts under the MIND (ABCD) framework.
+This codebase was built collaboratively by the **StateOfMIND** team — Alina Ponomareva, Nina Stekacheva Sancho, and Karina Litvinova — for Task 1 of the [CLPsych 2026 shared task](https://clpsych.org/), which asks systems to identify adaptive and maladaptive psychological self-states in social media posts under the MIND (ABCD) framework.
 
 > Alina Ponomareva, Nina Stekacheva Sancho, Karina Litvinova. **Self-State Identification with Retrieved In-Context Examples and Open-Weight LLMs.** In *Proceedings of the 10th Workshop on Computational Linguistics and Clinical Psychology (CLPsych 2026)*, pages 521–530. [aclanthology.org/2026.clpsych-1.42](https://aclanthology.org/2026.clpsych-1.42/)
 
